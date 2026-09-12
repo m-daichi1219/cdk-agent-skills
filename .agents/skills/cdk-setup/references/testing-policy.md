@@ -34,16 +34,12 @@ Add them on top of the snapshot whenever behaviour is generated rather than writ
 - anything the team must not regress.
 
 ```ts
-template.hasResourceProperties('AWS::DynamoDB::GlobalTable', {
-  SSESpecification: { SSEEnabled: true },
+template.hasResourceProperties('AWS::SQS::Queue', {
+  SqsManagedSseEnabled: true,
+  RedrivePolicy: Match.objectLike({ maxReceiveCount: 3 }),
 });
 
-template.hasResource('AWS::DynamoDB::GlobalTable', {
-  DeletionPolicy: 'Retain',
-  UpdateReplacePolicy: 'Retain',
-});
-
-template.resourceCountIs('AWS::DynamoDB::GlobalTable', 1);
+template.resourceCountIs('AWS::SQS::Queue', 2);
 ```
 
 Use `Match.objectLike` / `Match.arrayWith` for partial matching, and `Capture` when you need to

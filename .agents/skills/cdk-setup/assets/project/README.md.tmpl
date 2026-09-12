@@ -75,5 +75,6 @@ Never commit an access key, and never hard-code a profile name in CDK code.
 - `cdk.json` holds the feature flags the installed CDK version recommends for a new project (taken
   from `cdk init` at setup time). Changing a flag on a deployed stack can change or replace
   resources — treat it as a deliberate, reviewed change.
-- The starter construct (if present) exists to make the pipeline meaningful. Adapt or delete it —
-  with its tests — once real infrastructure lands.
+- The default is an empty stack. `--starter queue` adds a queue and a dead-letter queue so cdk-nag
+  has something real to evaluate; adapt or delete that construct — with its tests — once real
+  infrastructure lands.

@@ -4,7 +4,7 @@
  * exists the script reports every conflict and writes nothing.
  *
  *   node initialize-project.mjs --target infrastructure --project-name my-app \
- *     --environments dev,prod --region ap-northeast-1 --package-manager pnpm --starter datastore
+ *     --environments dev,prod --region ap-northeast-1 --package-manager pnpm --starter none
  */
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -33,7 +33,7 @@ const { values } = parseArgs({
     environments: { type: 'string', default: 'dev,prod' },
     region: { type: 'string' },
     'package-manager': { type: 'string', default: 'pnpm' },
-    starter: { type: 'string', default: 'datastore' },
+    starter: { type: 'string', default: 'none' },
     force: { type: 'boolean', default: false },
     help: { type: 'boolean', default: false },
   },
@@ -43,7 +43,7 @@ if (values.help || !values.target || !values['project-name']) {
   say(
     'usage: node initialize-project.mjs --target <dir> --project-name <name> ' +
       '[--environments dev,prod] [--region <region>] [--package-manager pnpm|npm|yarn] ' +
-      '[--starter datastore|none] [--force]',
+      '[--starter none|queue] [--force]',
   );
   process.exit(values.help ? 0 : 1);
 }
@@ -61,8 +61,8 @@ if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(projectName)) {
   );
 }
 
-if (!['datastore', 'none'].includes(starter)) {
-  die(`unknown starter "${starter}" (expected datastore or none)`);
+if (!['none', 'queue'].includes(starter)) {
+  die(`unknown starter "${starter}" (expected none or queue)`);
 }
 
 const environments = values.environments
@@ -140,26 +140,26 @@ const commonFiles = [
 ];
 
 const starterFiles = {
-  datastore: [
-    ['starters/datastore/lib/stacks/application-stack.ts.tmpl', 'lib/stacks/application-stack.ts'],
-    [
-      'starters/datastore/lib/constructs/application/application-data-store.ts.tmpl',
-      'lib/constructs/application/application-data-store.ts',
-    ],
-    [
-      'starters/datastore/test/stacks/application-stack.test.ts.tmpl',
-      'test/stacks/application-stack.test.ts',
-    ],
-    [
-      'starters/datastore/test/constructs/application-data-store.test.ts.tmpl',
-      'test/constructs/application-data-store.test.ts',
-    ],
-  ],
   none: [
     ['starters/none/lib/stacks/application-stack.ts.tmpl', 'lib/stacks/application-stack.ts'],
     [
       'starters/none/test/stacks/application-stack.test.ts.tmpl',
       'test/stacks/application-stack.test.ts',
+    ],
+  ],
+  queue: [
+    ['starters/queue/lib/stacks/application-stack.ts.tmpl', 'lib/stacks/application-stack.ts'],
+    [
+      'starters/queue/lib/constructs/application/application-queue.ts.tmpl',
+      'lib/constructs/application/application-queue.ts',
+    ],
+    [
+      'starters/queue/test/stacks/application-stack.test.ts.tmpl',
+      'test/stacks/application-stack.test.ts',
+    ],
+    [
+      'starters/queue/test/constructs/application-queue.test.ts.tmpl',
+      'test/constructs/application-queue.test.ts',
     ],
   ],
 };

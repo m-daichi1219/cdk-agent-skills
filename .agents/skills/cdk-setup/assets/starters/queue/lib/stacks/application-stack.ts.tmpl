@@ -1,7 +1,7 @@
 import { CfnOutput, Stack, type StackProps, Tags } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-import { ApplicationDataStore } from '../constructs/application/application-data-store';
+import { ApplicationQueue } from '../constructs/application/application-queue';
 
 export interface ApplicationStackProps extends StackProps {
   /** Project identifier, used for tagging and naming. */
@@ -18,16 +18,16 @@ export interface ApplicationStackProps extends StackProps {
  * lifecycle, account, region, owner or blast radius — never because the file got long.
  */
 export class ApplicationStack extends Stack {
-  public readonly dataStore: ApplicationDataStore;
+  public readonly messages: ApplicationQueue;
 
   constructor(scope: Construct, id: string, props: ApplicationStackProps) {
     super(scope, id, props);
 
-    this.dataStore = new ApplicationDataStore(this, 'DataStore');
+    this.messages = new ApplicationQueue(this, 'Messages');
 
-    new CfnOutput(this, 'DataStoreTableName', {
-      value: this.dataStore.table.tableName,
-      description: `DynamoDB table for ${props.projectName} (${props.environmentName})`,
+    new CfnOutput(this, 'QueueUrl', {
+      value: this.messages.queue.queueUrl,
+      description: `Application queue for ${props.projectName} (${props.environmentName})`,
     });
 
     Tags.of(this).add('Project', props.projectName);

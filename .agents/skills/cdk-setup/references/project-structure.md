@@ -69,8 +69,8 @@ Stack splitting is context-dependent: propose it, explain the boundary, and let 
 
 ## Naming
 
-- Files: kebab-case (`application-data-store.ts`).
-- Classes/constructs: PascalCase (`ApplicationDataStore`), props interface `<Name>Props`.
+- Files: kebab-case (`application-queue.ts`).
+- Classes/constructs: PascalCase (`ApplicationQueue`), props interface `<Name>Props`.
 - Construct IDs: PascalCase and stable. Changing an ID replaces resources — treat any ID change to a
   stateful resource as a destructive change.
 - Stack names: `<project>-<environment>`, derived from config rather than hard-coded strings.

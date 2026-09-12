@@ -101,7 +101,7 @@ supports) and the generated `package.json` + lock file make the project reproduc
 # regenerate the reference project the way an agent would, then validate it
 node .agents/skills/cdk-setup/scripts/check-prerequisites.mjs --target /tmp/selftest/infrastructure
 node .agents/skills/cdk-setup/scripts/initialize-project.mjs --target /tmp/selftest/infrastructure \
-  --project-name selftest-app --environments dev,prod --region ap-northeast-1 --starter datastore
+  --project-name selftest-app --environments dev,prod --region ap-northeast-1 --starter none
 node .agents/skills/cdk-setup/scripts/install-dependencies.mjs --target /tmp/selftest/infrastructure
 node .agents/skills/cdk-setup/scripts/verify-project.mjs --target /tmp/selftest/infrastructure
 ```

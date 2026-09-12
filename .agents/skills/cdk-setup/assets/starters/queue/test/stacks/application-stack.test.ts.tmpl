@@ -25,26 +25,26 @@ describe('ApplicationStack', () => {
     expect(synthesize().toJSON()).toMatchSnapshot();
   });
 
-  it('creates exactly one DynamoDB table', () => {
-    synthesize().resourceCountIs('AWS::DynamoDB::Table', 1);
+  it('creates a main queue and a dead-letter queue', () => {
+    synthesize().resourceCountIs('AWS::SQS::Queue', 2);
   });
 
-  it('keeps point-in-time recovery enabled', () => {
-    synthesize().hasResourceProperties('AWS::DynamoDB::Table', {
-      PointInTimeRecoverySpecification: { PointInTimeRecoveryEnabled: true },
+  it('enforces TLS on every queue', () => {
+    synthesize().resourceCountIs('AWS::SQS::QueuePolicy', 2);
+    synthesize().hasResourceProperties('AWS::SQS::QueuePolicy', {
+      PolicyDocument: Match.objectLike({
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Effect: 'Deny',
+            Condition: { Bool: { 'aws:SecureTransport': 'false' } },
+          }),
+        ]),
+      }),
     });
   });
 
-  it('retains the table and blocks accidental deletion', () => {
-    synthesize().hasResource('AWS::DynamoDB::Table', {
-      DeletionPolicy: 'Retain',
-      UpdateReplacePolicy: 'Retain',
-      Properties: Match.objectLike({ DeletionProtectionEnabled: true }),
-    });
-  });
-
-  it('tags resources with the project and the environment it was built for', () => {
-    synthesize('prod').hasResourceProperties('AWS::DynamoDB::Table', {
+  it('tags the main queue with the project and the environment it was built for', () => {
+    synthesize('prod').hasResourceProperties('AWS::SQS::Queue', {
       Tags: Match.arrayWith([
         { Key: 'Environment', Value: 'prod' },
         { Key: 'Project', Value: PROJECT_NAME },
@@ -52,7 +52,7 @@ describe('ApplicationStack', () => {
     });
   });
 
-  it('outputs the table name', () => {
-    expect(Object.keys(synthesize().findOutputs('DataStoreTableName'))).toHaveLength(1);
+  it('outputs the queue URL', () => {
+    expect(Object.keys(synthesize().findOutputs('QueueUrl'))).toHaveLength(1);
   });
 });

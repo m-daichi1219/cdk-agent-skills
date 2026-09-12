@@ -71,7 +71,7 @@ Ask only what you cannot detect, in one message, with defaults pre-filled:
 | Project name (used for stack names and resource naming) | directory or repository name, kebab-case |
 | What will this project mainly do? Which AWS resources do you expect? | no default — shapes the structure and the follow-up work |
 | Which deployment environments? (`dev,prod`, `dev,stg,prod`, …) | `dev,prod` |
-| Start from the example data-store construct, or an empty stack? | example (`--starter datastore`) |
+| Empty stack, or include the example queue construct? | empty (`--starter none`); example is `--starter queue` |
 
 Notes:
 
@@ -91,7 +91,7 @@ node "$SKILL_DIR/scripts/initialize-project.mjs" \
   --environments dev,prod \
   --region <region> \
   --package-manager pnpm \
-  --starter datastore
+  --starter none
 ```
 
 The script creates the directory when needed, writes the template files, and refuses to touch files
@@ -156,9 +156,9 @@ belongs to `cdk-development`.
 ├── lib/
 │   ├── app.ts                                  # One stack per environment + cdk-nag registration
 │   ├── config/environments.ts                  # Deployment targets (account/region), no credentials
-│   ├── constructs/application/                 # Project-specific constructs
+│   ├── constructs/application/                 # Domain constructs (`application-queue.ts` if --starter queue)
 │   ├── constructs/patterns/                    # Reusable infrastructure patterns
-│   └── stacks/application-stack.ts             # Deployment boundary
+│   └── stacks/application-stack.ts             # Deployment boundary (empty unless --starter queue)
 ├── test/
 │   ├── stacks/                                 # Snapshot + fine-grained assertions
 │   └── constructs/

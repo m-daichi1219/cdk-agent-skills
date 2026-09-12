@@ -1,0 +1,60 @@
+import { Duration } from 'aws-cdk-lib';
+import { Queue, QueueEncryption } from 'aws-cdk-lib/aws-sqs';
+import { Construct } from 'constructs';
+
+export interface ApplicationQueueProps {
+  /**
+   * How long a consumer can hold a message before it becomes visible again.
+   * Defaults to 30 seconds — raise it if the consumer can take longer than that.
+   */
+  readonly visibilityTimeout?: Duration;
+  /**
+   * Delivery attempts before the message is moved to the dead-letter queue. Defaults to 3.
+   */
+  readonly maxReceiveCount?: number;
+  /**
+   * How long a message stays on the main queue if it is never consumed. Defaults to 4 days
+   * (the SQS default). The dead-letter queue keeps messages for 14 days so operators have time
+   * to inspect a failure.
+   */
+  readonly retentionPeriod?: Duration;
+}
+
+/**
+ * Application queue with a dead-letter queue, TLS enforcement and SQS-managed encryption.
+ *
+ * This is the optional starter construct (`--starter queue`): it shows the conventions (props with
+ * safe defaults, one logical capability per construct, security-relevant properties made explicit)
+ * and gives cdk-nag something real to evaluate (AwsSolutions-SQS2 / SQS3 / SQS4) without a
+ * suppression. Adapt it, or delete it together with its tests once your own infrastructure exists.
+ *
+ * Do not attach a consumer here. A Lambda (or any role) would introduce IAM findings that are a
+ * project decision — add the consumer in `cdk-development` after the user has chosen the runtime.
+ */
+export class ApplicationQueue extends Construct {
+  public readonly queue: Queue;
+  public readonly deadLetterQueue: Queue;
+
+  constructor(scope: Construct, id: string, props: ApplicationQueueProps = {}) {
+    super(scope, id);
+
+    this.deadLetterQueue = new Queue(this, 'DeadLetterQueue', {
+      enforceSSL: true,
+      // SQS-managed encryption is free and needs no KMS key. A customer-managed key is a
+      // deliberate choice (rotation, audit, cross-account grants) — not a default.
+      encryption: QueueEncryption.SQS_MANAGED,
+      retentionPeriod: Duration.days(14),
+    });
+
+    this.queue = new Queue(this, 'Queue', {
+      enforceSSL: true,
+      encryption: QueueEncryption.SQS_MANAGED,
+      visibilityTimeout: props.visibilityTimeout ?? Duration.seconds(30),
+      retentionPeriod: props.retentionPeriod ?? Duration.days(4),
+      deadLetterQueue: {
+        queue: this.deadLetterQueue,
+        maxReceiveCount: props.maxReceiveCount ?? 3,
+      },
+    });
+  }
+}

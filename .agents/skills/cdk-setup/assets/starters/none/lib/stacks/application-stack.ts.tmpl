@@ -19,8 +19,7 @@ export class ApplicationStack extends Stack {
   constructor(scope: Construct, id: string, props: ApplicationStackProps) {
     super(scope, id, props);
 
-    // Add your constructs here, for example:
-    //   this.api = new ApplicationApi(this, 'Api', { ... });
+    // Add your constructs here. `--starter queue` is the optional example (a queue + DLQ).
     // Every resource with generated or conditional configuration needs a fine-grained assertion in
     // test/ on top of the snapshot test.
 

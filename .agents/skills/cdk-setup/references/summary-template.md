@@ -49,7 +49,7 @@ Design decisions
 ----------------
 - Environments <dev,prod> are environment-agnostic (account unset) so synth works without
   credentials. Fill in account IDs in lib/config/environments.ts when you are ready.
-- <starter construct / empty stack> because <reason from the interview>.
+- Empty stack (`--starter none`) or the example queue (`--starter queue`) because <reason>.
 - One stack per environment; stacks are deployment boundaries, complexity goes into constructs.
 - Removal policy RETAIN on stateful resources by default — change it per environment if you want
   dev tear-down.

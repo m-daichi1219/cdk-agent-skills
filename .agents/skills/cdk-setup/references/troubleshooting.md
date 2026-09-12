@@ -49,12 +49,23 @@ reading the ambient environment (not fine — pass the value in through props).
 
 ## `nag` fails
 
-Expected and useful. Do not suppress. Report each finding with rule, resource, impact, recommended
-fix, alternatives, trade-offs (see `security-policy.md`) and wait for the user's decision.
+Expected and useful. Do not suppress. First decide *what* failed: a cdk-nag finding, or a CDK
+warning treated as an error by `--strict`.
 
-If `cdk synth --strict` fails on an unrelated CDK warning (a deprecation, for example), say so
-explicitly: it is a warning-as-error, not a security finding, and the fix belongs to the code that
-triggers it.
+```bash
+# 1. Security findings only (warnings do not fail the process)
+npx cdk synth --quiet --context nag=true
+
+# 2. Same as `pnpm run nag`: cdk-nag findings *and* CDK warnings fail
+npx cdk synth --quiet --strict --context nag=true
+```
+
+- Step 1 fails → cdk-nag finding. Report rule, resource, impact, recommended fix, alternatives,
+  trade-offs (see `security-policy.md`) and wait. Do not acknowledge the finding to make the build
+  green.
+- Step 1 passes and step 2 fails → a CDK warning (often a deprecation). Say so explicitly: it is
+  warning-as-error, not a security finding, and the fix belongs to the code that triggers it. Do
+  not drop `--strict` from the `nag` script.
 
 ## Snapshot test fails after a change
 

@@ -1,0 +1,50 @@
+import { App, Duration, Stack } from 'aws-cdk-lib';
+import { Match, Template } from 'aws-cdk-lib/assertions';
+import { describe, expect, it } from 'vitest';
+
+import {
+  ApplicationQueue,
+  type ApplicationQueueProps,
+} from '../../lib/constructs/application/application-queue';
+
+const synthesize = (props?: ApplicationQueueProps): Template => {
+  const app = new App();
+  const stack = new Stack(app, 'TestStack', { env: { region: '{{REGION}}' } });
+
+  new ApplicationQueue(stack, 'Messages', props);
+
+  return Template.fromStack(stack);
+};
+
+describe('ApplicationQueue', () => {
+  it('matches the CloudFormation snapshot', () => {
+    expect(synthesize().toJSON()).toMatchSnapshot();
+  });
+
+  // Security-relevant defaults: TLS on both queues, SQS-managed encryption, a DLQ.
+  it('defaults to an encrypted main queue with a dead-letter queue', () => {
+    synthesize().hasResourceProperties('AWS::SQS::Queue', {
+      SqsManagedSseEnabled: true,
+      VisibilityTimeout: 30,
+      MessageRetentionPeriod: 345600,
+      RedrivePolicy: Match.objectLike({ maxReceiveCount: 3 }),
+    });
+  });
+
+  it('keeps failed messages on the dead-letter queue for 14 days', () => {
+    synthesize().hasResourceProperties('AWS::SQS::Queue', {
+      SqsManagedSseEnabled: true,
+      MessageRetentionPeriod: 1_209_600,
+    });
+  });
+
+  it('lets a caller override visibility timeout and retry count', () => {
+    synthesize({
+      visibilityTimeout: Duration.minutes(2),
+      maxReceiveCount: 5,
+    }).hasResourceProperties('AWS::SQS::Queue', {
+      VisibilityTimeout: 120,
+      RedrivePolicy: Match.objectLike({ maxReceiveCount: 5 }),
+    });
+  });
+});
