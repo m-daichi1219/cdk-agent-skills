@@ -1,0 +1,11 @@
+# lib/constructs/patterns
+
+Reusable infrastructure patterns that are not specific to one domain of this application — for
+example `StaticWebSite`, `QueueProcessor`, or a standardised Lambda function with the project's
+logging, tracing and IAM conventions baked in.
+
+Promote a construct here when it is used by more than one domain, or when it exists to enforce a
+project standard. Keep domain-specific constructs in `lib/constructs/<domain>/`.
+
+Do not create a pattern that only wraps a single L2 construct without adding configuration,
+validation or a project decision — the indirection costs more than it saves.

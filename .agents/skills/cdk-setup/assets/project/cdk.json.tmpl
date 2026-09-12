@@ -1,0 +1,18 @@
+{
+  "app": "node --import tsx bin/app.ts",
+  "output": "cdk.out",
+  "watch": {
+    "include": ["bin/**", "lib/**"],
+    "exclude": [
+      "README.md",
+      "cdk*.json",
+      "tsconfig.json",
+      "package*.json",
+      "pnpm-lock.yaml",
+      "node_modules",
+      "test",
+      "cdk.out"
+    ]
+  },
+  "context": {}
+}

@@ -1,0 +1,42 @@
+import { App, type AppProps, Validations } from 'aws-cdk-lib';
+import { AwsSolutionsChecks } from 'cdk-nag';
+
+import { environments } from './config/environments';
+import { ApplicationStack } from './stacks/application-stack';
+
+export const PROJECT_NAME = '{{PROJECT_NAME}}';
+
+/**
+ * Whether security validation was requested for this synthesis (`{{PM}} run nag` passes
+ * `--context nag=true`). Keeping it out of a plain `cdk synth` keeps the fast path fast.
+ */
+export const isNagRequested = (app: App): boolean => {
+  const flag = app.node.tryGetContext('nag') as boolean | string | undefined;
+  return flag === true || flag === 'true';
+};
+
+/**
+ * Builds the CDK app: one {@link ApplicationStack} per configured deployment target.
+ */
+export const createApp = (props?: AppProps): App => {
+  const app = new App(props);
+
+  for (const [environmentName, environment] of Object.entries(environments)) {
+    new ApplicationStack(app, `${PROJECT_NAME}-${environmentName}`, {
+      // account is undefined until it is configured: environment-agnostic stacks synthesize
+      // without AWS credentials, which keeps `{{PM}} run check` local and deterministic.
+      env: { account: environment.account, region: environment.region },
+      projectName: PROJECT_NAME,
+      environmentName,
+      description: `${PROJECT_NAME} application stack (${environmentName})`,
+    });
+  }
+
+  if (isNagRequested(app)) {
+    // cdk-nag v3 is a CDK policy validation plugin: any violation interrupts synthesis and the
+    // report is written to cdk.out/policy-validation-report.json.
+    Validations.of(app).addPlugins(new AwsSolutionsChecks(app, { verbose: true }));
+  }
+
+  return app;
+};

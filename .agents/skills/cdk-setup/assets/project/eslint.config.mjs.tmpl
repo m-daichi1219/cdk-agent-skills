@@ -1,0 +1,20 @@
+import js from '@eslint/js';
+import prettier from 'eslint-config-prettier/flat';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+  {
+    ignores: ['cdk.out/**', 'coverage/**', 'node_modules/**', '**/__snapshots__/**'],
+  },
+  js.configs.recommended,
+  tseslint.configs.recommended,
+  // Keep prettier last so formatting rules never fight the formatter.
+  prettier,
+  {
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      // CDK constructs register themselves with their scope, so they are created for effect.
+      'no-new': 'off',
+    },
+  },
+);

@@ -1,0 +1,14 @@
+# lib/constructs/application
+
+Constructs that belong to this application's domain — the things {{PROJECT_NAME}} actually does.
+
+Group by logical responsibility or domain concept (`order-processing/`, `public-api/`), not by AWS
+service. A folder per service (`lambda/`, `dynamodb/`, `s3/`) spreads one feature across the tree and
+tells a reader nothing about the system.
+
+Create a construct when configuration repeats, when a security policy or project standard needs one
+home, or when several resources together form one logical capability. Use the L2 construct directly
+for a one-off simple resource.
+
+Every construct with props-driven, conditional or security-relevant configuration needs fine-grained
+assertions in `test/constructs/` on top of the stack snapshot.

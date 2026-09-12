@@ -1,0 +1,36 @@
+import { CfnOutput, Stack, type StackProps, Tags } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+
+import { ApplicationDataStore } from '../constructs/application/application-data-store';
+
+export interface ApplicationStackProps extends StackProps {
+  /** Project identifier, used for tagging and naming. */
+  readonly projectName: string;
+  /** Deployment environment this stack instance belongs to (`dev`, `prod`, …). */
+  readonly environmentName: string;
+}
+
+/**
+ * Deployment boundary for the application.
+ *
+ * Keep this class as wiring: resources belong in constructs under `lib/constructs`, and the stack
+ * decides what gets deployed and rolled back together. Split it only for an independent deployment,
+ * lifecycle, account, region, owner or blast radius — never because the file got long.
+ */
+export class ApplicationStack extends Stack {
+  public readonly dataStore: ApplicationDataStore;
+
+  constructor(scope: Construct, id: string, props: ApplicationStackProps) {
+    super(scope, id, props);
+
+    this.dataStore = new ApplicationDataStore(this, 'DataStore');
+
+    new CfnOutput(this, 'DataStoreTableName', {
+      value: this.dataStore.table.tableName,
+      description: `DynamoDB table for ${props.projectName} (${props.environmentName})`,
+    });
+
+    Tags.of(this).add('Project', props.projectName);
+    Tags.of(this).add('Environment', props.environmentName);
+  }
+}

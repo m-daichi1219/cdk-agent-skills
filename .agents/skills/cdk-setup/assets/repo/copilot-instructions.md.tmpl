@@ -1,0 +1,48 @@
+# Repository instructions
+
+AWS CDK infrastructure for `{{PROJECT_NAME}}` lives in `{{PROJECT_DIR}}`.
+
+## Always-on principles
+
+1. Do not make decisions that need project or business context. Ask.
+2. Anything with security, architecture or business impact gets confirmed with a human first.
+3. Report problems together with a recommended direction.
+4. Explain the main reason behind a recommendation.
+5. Offer alternatives and their trade-offs when they matter.
+6. Never run a command that changes an AWS environment (`cdk deploy`, `cdk destroy`,
+   `cdk bootstrap`, `aws cloudformation` mutations). Print the command for the human instead.
+7. Never handle secrets: no credentials, keys or tokens in code, config, logs or chat.
+8. Follow the conventions already present in this repository.
+9. Never hide a validation failure.
+10. Never work around a check just to make it pass.
+
+## CDK rules
+
+- Model with constructs, deploy with stacks. A stack is a deployment boundary, not a folder.
+- Prefer L2 constructs; extract a custom construct when configuration repeats or when several
+  resources form one logical capability.
+- IAM: `grant*` API → service-specific API → explicit `PolicyStatement` → wildcard (needs a reason).
+  Never `Action: '*'` / `Resource: '*'` / `AdministratorAccess` for convenience.
+- Secure defaults: private, encrypted, least privilege, logging enabled where appropriate, secrets in
+  Secrets Manager or SSM.
+- Context-dependent choices belong to the human: removal policy, retention, public access, VPC
+  placement, customer-managed keys, stack splitting, IAM expansion, cdk-nag finding resolution.
+- cdk-nag findings are reported with rule, resource, impact, recommended fix, alternatives and
+  trade-offs. Never add a suppression to make the build green.
+- Snapshot tests are mandatory. Add fine-grained assertions for generated, conditional,
+  props-driven and security-relevant configuration.
+- Read every snapshot and `cdk diff` change for resource replacement or deletion before accepting it.
+
+## Validation
+
+```bash
+cd {{PROJECT_DIR}}
+{{PM}} run check    # format:check -> lint -> build -> test -> synth -> nag
+```
+
+Run this before reporting work as done, and show the real result.
+
+## Skills
+
+- `.agents/skills/cdk-development` — implementing AWS CDK infrastructure here
+- `.agents/skills/cdk-review` — reviewing quality, security and destructive change

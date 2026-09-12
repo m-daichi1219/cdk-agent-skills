@@ -1,0 +1,27 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "AWS CDK infrastructure for {{PROJECT_NAME}}",
+  "engines": {
+    "node": "{{NODE_ENGINE}}"
+  },
+  "packageManager": "{{PACKAGE_MANAGER}}",
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "synth": "cdk synth --quiet",
+    "nag": "cdk synth --quiet --strict --context nag=true",
+    "diff": "cdk diff",
+    "check": "{{PM}} run format:check && {{PM}} run lint && {{PM}} run build && {{PM}} run test && {{PM}} run synth && {{PM}} run nag",
+    "deploy": "cdk deploy"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

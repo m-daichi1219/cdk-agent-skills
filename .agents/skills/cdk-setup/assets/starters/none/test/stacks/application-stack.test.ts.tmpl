@@ -1,0 +1,36 @@
+import { App } from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import { describe, expect, it } from 'vitest';
+
+import { ApplicationStack } from '../../lib/stacks/application-stack';
+
+const PROJECT_NAME = '{{PROJECT_NAME}}';
+const ENVIRONMENT_NAME = '{{DEFAULT_ENVIRONMENT}}';
+const REGION = '{{REGION}}';
+
+const synthesize = (environmentName: string = ENVIRONMENT_NAME): Template => {
+  const app = new App();
+  const stack = new ApplicationStack(app, `${PROJECT_NAME}-${environmentName}`, {
+    env: { region: REGION },
+    projectName: PROJECT_NAME,
+    environmentName,
+  });
+
+  return Template.fromStack(stack);
+};
+
+describe('ApplicationStack', () => {
+  // Guards the whole template against unintended change. Read the diff before updating it.
+  it('matches the CloudFormation snapshot', () => {
+    expect(synthesize().toJSON()).toMatchSnapshot();
+  });
+
+  it('has no resources yet', () => {
+    const resources = synthesize().toJSON().Resources ?? {};
+
+    expect(Object.keys(resources)).toHaveLength(0);
+  });
+
+  // Add a fine-grained assertion for every construct you introduce: generated names, conditional
+  // resources, props-driven values and security properties (encryption, retention, public access).
+});

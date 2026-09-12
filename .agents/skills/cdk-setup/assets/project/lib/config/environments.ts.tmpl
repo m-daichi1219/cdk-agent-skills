@@ -1,0 +1,23 @@
+/**
+ * Deployment targets: which AWS account and region each environment maps to.
+ *
+ * This file is configuration, never credentials. Authenticate with IAM Identity Center, an AWS CLI
+ * profile, AssumeRole, or CI OIDC — and pass the profile on the command line
+ * (`--profile` / `AWS_PROFILE`). Never hard-code a profile name or a secret here.
+ */
+export interface EnvironmentConfig {
+  /**
+   * AWS account ID. Leave `undefined` to keep the stack environment-agnostic, which lets `synth`
+   * and the tests run without credentials. Set it before you deploy: it pins the stack to one
+   * account and is required for context lookups (VPC, AMI, hosted zone).
+   */
+  readonly account?: string;
+  /** AWS region for this environment. */
+  readonly region: string;
+}
+
+export const environments = {
+{{ENVIRONMENT_ENTRIES}}
+} as const satisfies Record<string, EnvironmentConfig>;
+
+export type EnvironmentName = keyof typeof environments;

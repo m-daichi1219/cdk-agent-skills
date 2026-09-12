@@ -1,0 +1,10 @@
+# Self-test / scratch output (never commit generated projects)
+.selftest/
+tmp/
+
+# Node
+node_modules/
+*.log
+
+# OS / editor
+.DS_Store

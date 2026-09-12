@@ -1,0 +1,10 @@
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    include: ['test/**/*.test.ts'],
+    environment: 'node',
+    // CDK synthesis is CPU bound and slow on a cold cache; keep the timeout generous.
+    testTimeout: 30_000,
+  },
+});

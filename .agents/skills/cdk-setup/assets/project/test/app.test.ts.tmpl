@@ -1,0 +1,49 @@
+import { App, Stack } from 'aws-cdk-lib';
+import { describe, expect, it } from 'vitest';
+
+import { PROJECT_NAME, createApp, isNagRequested } from '../lib/app';
+import { environments } from '../lib/config/environments';
+
+const stacksOf = (app: App): Stack[] =>
+  app.node.children.filter((child): child is Stack => Stack.isStack(child));
+
+describe('createApp', () => {
+  // The app builds stacks in a loop over the environment config, so the mapping is generated
+  // behaviour and needs an explicit assertion rather than only a snapshot.
+  it('creates exactly one stack per configured environment', () => {
+    const stackNames = stacksOf(createApp()).map((stack) => stack.stackName);
+
+    expect(stackNames).toEqual(
+      Object.keys(environments).map((environmentName) => `${PROJECT_NAME}-${environmentName}`),
+    );
+  });
+
+  it('gives every stack the region from its environment config', () => {
+    const stacks = stacksOf(createApp());
+
+    for (const [environmentName, environment] of Object.entries(environments)) {
+      const stack = stacks.find((candidate) => candidate.stackName.endsWith(`-${environmentName}`));
+
+      expect(stack?.region).toBe(environment.region);
+    }
+  });
+});
+
+describe('isNagRequested', () => {
+  // Security validation must not be skippable by accident, and must not slow down a plain synth.
+  it('is off for a plain synth', () => {
+    expect(isNagRequested(createApp())).toBe(false);
+  });
+
+  it('is on for the string context the CDK CLI passes', () => {
+    expect(isNagRequested(createApp({ context: { nag: 'true' } }))).toBe(true);
+  });
+
+  it('is on for a boolean context set in code', () => {
+    expect(isNagRequested(createApp({ context: { nag: true } }))).toBe(true);
+  });
+
+  it('stays off for any other value', () => {
+    expect(isNagRequested(createApp({ context: { nag: 'yes' } }))).toBe(false);
+  });
+});
