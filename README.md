@@ -8,9 +8,12 @@ Cursor, Claude Code and other agents that read `SKILL.md`.
 
 | Skill | Purpose |
 | --- | --- |
-| [`cdk-setup`](.agents/skills/cdk-setup) | Build a TypeScript AWS CDK v2 project: pnpm, ESLint, Prettier, Vitest + CDK Assertions, cdk-nag, repository instructions |
-| [`cdk-development`](.agents/skills/cdk-development) | Implement CDK infrastructure: construct/stack design, least-privilege IAM, tests |
-| [`cdk-review`](.agents/skills/cdk-review) | Review quality, security, IAM, generated template, destructive change |
+| [`cdk-setup`](skills/cdk-setup) | Build a TypeScript AWS CDK v2 project: pnpm, ESLint, Prettier, Vitest + CDK Assertions, cdk-nag, repository instructions |
+| [`cdk-development`](skills/cdk-development) | Implement CDK infrastructure: construct/stack design, least-privilege IAM, tests |
+| [`cdk-review`](skills/cdk-review) | Review quality, security, IAM, generated template, destructive change |
+
+This repository is the **source** (`skills/`). Consuming projects load skills from
+`.agents/skills/` — that is where `gh skill install` and `cdk-setup` place them.
 
 ## Philosophy
 
@@ -33,13 +36,13 @@ Every decision falls into one of four buckets:
 Project skills are read from `.agents/skills/` (also `.github/skills/` or `.claude/skills/`).
 
 ```bash
-# whole set
-git clone https://github.com/daichi/cdk-agent-skills /tmp/cdk-agent-skills
-mkdir -p .agents/skills
-cp -R /tmp/cdk-agent-skills/.agents/skills/cdk-setup .agents/skills/
+# GitHub CLI (preview): copies skills/ into the current repo's .agents/skills/
+gh skill install m-daichi1219/cdk-agent-skills --all
 
-# or, with GitHub CLI (>= 2.9x)
-gh skill install daichi/cdk-agent-skills
+# or clone and copy by hand
+git clone https://github.com/m-daichi1219/cdk-agent-skills /tmp/cdk-agent-skills
+mkdir -p .agents/skills
+cp -R /tmp/cdk-agent-skills/skills/cdk-setup .agents/skills/
 ```
 
 Then ask your agent to set up a CDK project — it loads `cdk-setup` from the description. `cdk-setup`
@@ -61,6 +64,13 @@ installs `cdk-development` and `cdk-review` into the target repository itself, w
 
 Personal (cross-project) installation works too: copy a skill into `~/.agents/skills/` or
 `~/.copilot/skills/`.
+
+To publish a new version from this repository:
+
+```bash
+gh skill publish --dry-run
+gh skill publish --tag v1.0.0
+```
 
 ## What `cdk-setup` produces
 
@@ -99,11 +109,11 @@ supports) and the generated `package.json` + lock file make the project reproduc
 
 ```bash
 # regenerate the reference project the way an agent would, then validate it
-node .agents/skills/cdk-setup/scripts/check-prerequisites.mjs --target /tmp/selftest/infrastructure
-node .agents/skills/cdk-setup/scripts/initialize-project.mjs --target /tmp/selftest/infrastructure \
+node skills/cdk-setup/scripts/check-prerequisites.mjs --target /tmp/selftest/infrastructure
+node skills/cdk-setup/scripts/initialize-project.mjs --target /tmp/selftest/infrastructure \
   --project-name selftest-app --environments dev,prod --region ap-northeast-1 --starter none
-node .agents/skills/cdk-setup/scripts/install-dependencies.mjs --target /tmp/selftest/infrastructure
-node .agents/skills/cdk-setup/scripts/verify-project.mjs --target /tmp/selftest/infrastructure
+node skills/cdk-setup/scripts/install-dependencies.mjs --target /tmp/selftest/infrastructure
+node skills/cdk-setup/scripts/verify-project.mjs --target /tmp/selftest/infrastructure
 ```
 
 Self-tests must stay local and deterministic: `synth` and `diff` are allowed, `deploy`, `destroy` and

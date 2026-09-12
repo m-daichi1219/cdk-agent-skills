@@ -8,7 +8,15 @@
 
 Skill 自体の設計・実装には Cursor を利用するが、Cursor 固有仕様には依存せず、可能な限り Agent Skills の標準仕様に準拠すること。
 
-Skill の canonical location は以下とする。
+Skill の置き場所は役割で分ける。
+
+このリポジトリ（配布元）の canonical location:
+
+```text
+skills/
+```
+
+利用側プロジェクト（Copilot / Cursor が読む配置、`cdk-setup` が書き込む先）:
 
 ```text
 .agents/skills/
@@ -140,11 +148,10 @@ Agent は、
 初期バージョンでは Skill を以下の3つに分割する。
 
 ```text
-.agents/
-└── skills/
-    ├── cdk-setup/
-    ├── cdk-development/
-    └── cdk-review/
+skills/
+├── cdk-setup/
+├── cdk-development/
+└── cdk-review/
 ```
 
 責務を明確に分けること。
@@ -1007,27 +1014,23 @@ Script に適した処理:
 # 31. Suggested cdk-setup Structure
 
 ```text
-.agents/
-└── skills/
-    └── cdk-setup/
-        ├── SKILL.md
-        │
-        ├── scripts/
-        │   ├── check-prerequisites.*
-        │   ├── initialize-project.*
-        │   └── verify-project.*
-        │
-        ├── references/
-        │   ├── project-structure.md
-        │   ├── testing-policy.md
-        │   ├── security-policy.md
-        │   └── environment-policy.md
-        │
-        └── assets/
-            ├── package.json
-            ├── eslint.config.*
-            ├── prettier.config.*
-            └── vitest.config.*
+skills/
+└── cdk-setup/
+    ├── SKILL.md
+    ├── scripts/
+    │   ├── check-prerequisites.*
+    │   ├── initialize-project.*
+    │   └── verify-project.*
+    ├── references/
+    │   ├── project-structure.md
+    │   ├── testing-policy.md
+    │   ├── security-policy.md
+    │   └── environment-policy.md
+    └── assets/
+        ├── package.json
+        ├── eslint.config.*
+        ├── prettier.config.*
+        └── vitest.config.*
 ```
 
 実際の構造は実装時に改善してよい。

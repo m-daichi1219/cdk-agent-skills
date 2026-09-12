@@ -54,7 +54,7 @@ const repoRoot = path.resolve(
 const packageManager = resolvePackageManager(values['package-manager']);
 const projectName = values['project-name'] ?? path.basename(targetDir);
 
-/** The skills directory this skill itself was loaded from. */
+/** Sibling skills in this source repo (`skills/`). Destination is the consumer path. */
 const sourceSkillsRoot = path.dirname(SKILL_DIR);
 const destinationSkillsRoot = path.join(repoRoot, '.agents', 'skills');
 
